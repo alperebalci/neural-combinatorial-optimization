@@ -41,6 +41,6 @@ jobs:
       - name: Check formatting
         run: ruff format --check .
       - name: Type check
-        run: mypy src
+        run: mypy --python-version "${{ matrix.python-version }}" src
       - name: Regression and coverage
         run: pytest
