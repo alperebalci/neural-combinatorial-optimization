@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import torch
 from safetensors import safe_open
@@ -168,7 +168,7 @@ class AdapterHead(nn.Module):
     ) -> torch.Tensor:
         task = task_embedding.expand(variable_embeddings.shape[0], -1)
         combined = torch.cat([variable_embeddings, task], dim=1)
-        return self.network(combined).squeeze(-1)
+        return cast(torch.Tensor, self.network(combined).squeeze(-1))
 
 
 class FoundationCOModel(nn.Module):
@@ -246,7 +246,7 @@ class FoundationCOModel(nn.Module):
         except KeyError as exc:
             raise ValueError(f"task {task!r} is not registered in this model") from exc
         tensor = torch.tensor(index, dtype=torch.long, device=device)
-        return self.task_embeddings(tensor).unsqueeze(0)
+        return cast(torch.Tensor, self.task_embeddings(tensor).unsqueeze(0))
 
     def encode(
         self,
@@ -310,9 +310,9 @@ class FoundationCOModel(nn.Module):
             task,
             graph.variable_features.device,
         )
-        return self.adapters[task](
-            output.variable_embeddings,
-            task_embedding,
+        return cast(
+            torch.Tensor,
+            self.adapters[task](output.variable_embeddings, task_embedding),
         )
 
     def reconstruct(

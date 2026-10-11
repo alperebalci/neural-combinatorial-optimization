@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fmco.benchmark import BenchmarkReport, evaluate_model
 from fmco.dataset import ProblemCorpus, collect_corpus
-from fmco.domain import ProblemFamily
+from fmco.domain import BinaryLinearProblem, ProblemFamily
 from fmco.generator import generate_problems
 from fmco.model import FoundationCOModel, ModelConfig
 from fmco.pretraining import (
@@ -145,7 +145,7 @@ def _collect_seen(
     seed: int,
     shifted: bool = False,
 ) -> ProblemCorpus:
-    regimes = None
+    regimes: dict[str, tuple[str, ...]] | None = None
     if shifted:
         regimes = {
             "knapsack": ("uncorrelated", "tight_capacity"),
@@ -176,7 +176,7 @@ def run_research_experiment(
     """Run a leakage-resistant miniature foundation-model protocol."""
 
     config = config or ResearchConfig()
-    pretrain_problems = []
+    pretrain_problems: list[BinaryLinearProblem] = []
     for family_index, family in enumerate(SEEN_FAMILIES):
         pretrain_problems.extend(
             generate_problems(

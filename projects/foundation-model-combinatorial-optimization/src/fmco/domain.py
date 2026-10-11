@@ -45,11 +45,11 @@ class LinearConstraintSpec:
 
     @classmethod
     def from_dict(cls, payload: dict[str, object]) -> LinearConstraintSpec:
-        coefficients = tuple(float(value) for value in cast(list[object], payload["coefficients"]))
+        coefficients = tuple(float(value) for value in cast(list[float], payload["coefficients"]))
         return cls(
             coefficients=coefficients,
             sense=cast(ConstraintSense, str(payload["sense"])),
-            rhs=float(payload["rhs"]),
+            rhs=float(cast(float | int | str, payload["rhs"])),
             name=str(payload.get("name", "")),
         )
 
@@ -216,7 +216,7 @@ class BinaryLinearProblem:
             name=str(payload["name"]),
             family=cast(ProblemFamily, str(payload["family"])),
             objective_sense=cast(ObjectiveSense, str(payload["objective_sense"])),
-            objective=tuple(float(value) for value in cast(list[object], payload["objective"])),
+            objective=tuple(float(value) for value in cast(list[float], payload["objective"])),
             constraints=constraints,
             regime=str(payload.get("regime", "in_distribution")),
             metadata=dict(metadata),

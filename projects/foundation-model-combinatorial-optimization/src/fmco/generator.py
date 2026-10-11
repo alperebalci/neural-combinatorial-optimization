@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import cast
 
 import numpy as np
 
@@ -259,7 +258,7 @@ def generate_problems(
         problems.append(
             generate_problem(
                 GeneratorConfig(
-                    family=cast(ProblemFamily, family),
+                    family=family,
                     variable_count=variable_count,
                     regime=regime,
                     seed=instance_seed,

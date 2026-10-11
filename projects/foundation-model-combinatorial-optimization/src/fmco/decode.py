@@ -20,7 +20,7 @@ class DecodeResult:
 
 def _sigmoid(values: np.ndarray) -> np.ndarray:
     clipped = np.clip(values, -40.0, 40.0)
-    return 1.0 / (1.0 + np.exp(-clipped))
+    return np.asarray(1.0 / (1.0 + np.exp(-clipped)), dtype=float)
 
 
 def _benefit(problem: BinaryLinearProblem) -> np.ndarray:
@@ -203,4 +203,4 @@ def objective_heuristic_logits(problem: BinaryLinearProblem) -> np.ndarray:
         score = objective - 0.15 * incidence
     # Convert a bounded priority-like score to logits while keeping finite values.
     probability = np.clip(0.5 + 0.24 * score, 1e-4, 1.0 - 1e-4)
-    return np.log(probability / (1.0 - probability))
+    return np.asarray(np.log(probability / (1.0 - probability)), dtype=float)
