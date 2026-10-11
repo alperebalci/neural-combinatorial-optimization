@@ -252,7 +252,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     rounds=args.rounds,
                 )
             )
-            summary = pretrain_encoder(
+            pretraining_summary = pretrain_encoder(
                 model,
                 [record.problem for record in corpus.records],
                 config=PretrainingConfig(
@@ -267,14 +267,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 metadata={
                     "stage": "self_supervised_pretraining",
                     "corpus_fingerprint": corpus.fingerprint,
-                    "summary": summary.to_dict(),
+                    "summary": pretraining_summary.to_dict(),
                 },
             )
-            payload = {
+            pretrain_payload = {
                 "checkpoint": str(args.checkpoint),
-                **summary.to_dict(),
+                **pretraining_summary.to_dict(),
             }
-            _write_or_print(payload, args.output_report)
+            _write_or_print(pretrain_payload, args.output_report)
             return 0
 
         if args.command == "adapt":
@@ -290,7 +290,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     )
                 )
                 source_metadata = {"stage": "random_initialization"}
-            summary = train_decision_model(
+            adaptation_summary = train_decision_model(
                 model,
                 corpus.records,
                 validation.records,
@@ -312,11 +312,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "validation_fingerprint": validation.fingerprint,
                     "tasks": list(args.tasks),
                     "freeze_encoder": args.freeze_encoder,
-                    "summary": summary.to_dict(),
+                    "summary": adaptation_summary.to_dict(),
                 },
             )
             _write_or_print(
-                {"checkpoint": str(args.checkpoint), **summary.to_dict()},
+                {"checkpoint": str(args.checkpoint), **adaptation_summary.to_dict()},
                 args.output_report,
             )
             return 0
@@ -337,7 +337,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             inference_seconds = time.perf_counter() - started
             decoded = decode_and_repair(problem, logits)
-            payload: dict[str, object] = {
+            solve_payload: dict[str, object] = {
                 "problem": problem.name,
                 "family": problem.family,
                 "raw_decision": list(decoded.raw_decision),
@@ -350,23 +350,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "checkpoint_metadata": metadata,
             }
             if args.with_exact:
-                payload["exact"] = solve_exact(problem).to_dict()
-            _write_or_print(payload, args.output)
+                solve_payload["exact"] = solve_exact(problem).to_dict()
+            _write_or_print(solve_payload, args.output)
             return 0
 
         if args.command == "benchmark":
             corpus = load_corpus(args.corpus)
             model, _ = load_checkpoint(args.checkpoint)
-            report = evaluate_model(
+            benchmark_report = evaluate_model(
                 model,
                 corpus.records,
                 model_label=args.label,
             )
             if args.output_json:
-                save_report_json(report, args.output_json)
+                save_report_json(benchmark_report, args.output_json)
             if args.output_csv:
-                save_report_csv(report, args.output_csv)
-            _write_or_print(report.to_dict(), None)
+                save_report_csv(benchmark_report, args.output_csv)
+            _write_or_print(benchmark_report.to_dict(), None)
             return 0
 
         config = ResearchConfig(
@@ -389,16 +389,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             rounds=args.rounds,
             seed=args.seed,
         )
-        model, report = run_research_experiment(config)
+        model, research_report = run_research_experiment(config)
         save_checkpoint(
             model,
             args.checkpoint,
             metadata={
                 "stage": "research_multitask_model",
-                "corpus_fingerprints": report.corpus_fingerprints,
+                "corpus_fingerprints": research_report.corpus_fingerprints,
             },
         )
-        save_research_report(report, args.output_report)
+        save_research_report(research_report, args.output_report)
         _write_or_print(
             {
                 "checkpoint": str(args.checkpoint),
