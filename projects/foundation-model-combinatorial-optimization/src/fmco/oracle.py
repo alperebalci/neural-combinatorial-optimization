@@ -4,12 +4,18 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypedDict, cast
 
 import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, milp
 
 from fmco.domain import BinaryLinearProblem
+
+
+class _MILPOptions(TypedDict, total=False):
+    presolve: bool
+    mip_rel_gap: float
+    time_limit: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,12 +44,12 @@ class ExactSolution:
     @classmethod
     def from_dict(cls, payload: dict[str, object]) -> ExactSolution:
         return cls(
-            decision=tuple(int(value) for value in payload["decision"]),  # type: ignore[index]
-            objective=float(payload["objective"]),
-            canonical_objective=float(payload["canonical_objective"]),
-            runtime_seconds=float(payload.get("runtime_seconds", 0.0)),
-            node_count=int(payload.get("node_count", 0)),
-            mip_gap=float(payload.get("mip_gap", 0.0)),
+            decision=tuple(int(value) for value in cast(list[int], payload["decision"])),
+            objective=float(cast(float | int | str, payload["objective"])),
+            canonical_objective=float(cast(float | int | str, payload["canonical_objective"])),
+            runtime_seconds=float(cast(float | int | str, payload.get("runtime_seconds", 0.0))),
+            node_count=int(cast(int | str, payload.get("node_count", 0))),
+            mip_gap=float(cast(float | int | str, payload.get("mip_gap", 0.0))),
             status=str(payload.get("status", "loaded")),
             tie_break_used=bool(payload.get("tie_break_used", False)),
         )
@@ -72,7 +78,7 @@ def _solve(
     *,
     time_limit: float | None,
 ) -> Any:
-    options: dict[str, float | bool] = {"presolve": True, "mip_rel_gap": 0.0}
+    options: _MILPOptions = {"presolve": True, "mip_rel_gap": 0.0}
     if time_limit is not None:
         options["time_limit"] = time_limit
     return milp(
