@@ -175,7 +175,7 @@ def train_decision_model(
             loss = torch.stack([_loss_for_record(model, record, device) for record in batch]).mean()
             if not torch.isfinite(loss):
                 raise RuntimeError("non-finite supervised loss")
-            loss.backward()
+            loss.backward()  # type: ignore[no-untyped-call]  # PyTorch stub lacks annotation
             torch.nn.utils.clip_grad_norm_(parameters, config.gradient_clip)
             optimizer.step()
             batch_losses.append(float(loss.detach().cpu()))
