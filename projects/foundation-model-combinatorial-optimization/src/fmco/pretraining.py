@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import torch
@@ -174,7 +176,7 @@ def pretrain_encoder(
             )
             if not torch.isfinite(loss):
                 raise RuntimeError("non-finite pre-training loss")
-            loss.backward()
+            cast(Callable[[], None], loss.backward)()
             torch.nn.utils.clip_grad_norm_(parameters, config.gradient_clip)
             optimizer.step()
             total_values.append(float(loss.detach().cpu()))
