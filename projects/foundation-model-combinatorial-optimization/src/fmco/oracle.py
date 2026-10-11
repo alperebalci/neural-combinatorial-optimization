@@ -86,7 +86,8 @@ def _solve(
         integrality=np.ones(objective.shape[0], dtype=int),
         bounds=Bounds(np.zeros(objective.shape[0]), np.ones(objective.shape[0])),
         constraints=constraints,
-        options=options,
+        # SciPy stubs require a private TypedDict; these keys are valid public options.
+        options=cast(Any, options),
     )
 
 
