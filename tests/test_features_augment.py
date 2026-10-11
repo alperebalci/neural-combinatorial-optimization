@@ -17,9 +17,7 @@ from fmco.utils import set_global_seed
 
 
 def test_feature_shapes_and_masks() -> None:
-    problem = generate_problem(
-        GeneratorConfig(family="set_cover", variable_count=8, seed=8)
-    )
+    problem = generate_problem(GeneratorConfig(family="set_cover", variable_count=8, seed=8))
     graph = featurize(problem)
     assert graph.variable_features.shape == (
         8,
@@ -46,9 +44,7 @@ def test_equivalent_view_preserves_optimal_objective() -> None:
 
 def test_graph_embedding_is_invariant_to_equivalent_view() -> None:
     set_global_seed(3)
-    problem = generate_problem(
-        GeneratorConfig(family="set_packing", variable_count=9, seed=7)
-    )
+    problem = generate_problem(GeneratorConfig(family="set_packing", variable_count=9, seed=7))
     view = equivalent_view(problem, np.random.default_rng(13))
     model = FoundationCOModel(
         ModelConfig(
