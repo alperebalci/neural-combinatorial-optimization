@@ -32,13 +32,9 @@ def test_benchmark_reports_solver_grounded_controls() -> None:
         "exact_oracle",
     }
     assert expected <= methods
+    assert all(row.feasible for row in report.rows if row.method != "foundation_raw")
     assert all(
-        row.feasible for row in report.rows if row.method != "foundation_raw"
-    )
-    assert all(
-        row.objective_gap_percent == 0.0
-        for row in report.rows
-        if row.method == "exact_oracle"
+        row.objective_gap_percent == 0.0 for row in report.rows if row.method == "exact_oracle"
     )
     assert report.model_parameters == model.parameter_count
 

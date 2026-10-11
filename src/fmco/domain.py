@@ -45,9 +45,7 @@ class LinearConstraintSpec:
 
     @classmethod
     def from_dict(cls, payload: dict[str, object]) -> LinearConstraintSpec:
-        coefficients = tuple(
-            float(value) for value in cast(list[object], payload["coefficients"])
-        )
+        coefficients = tuple(float(value) for value in cast(list[object], payload["coefficients"]))
         return cls(
             coefficients=coefficients,
             sense=cast(ConstraintSense, str(payload["sense"])),
@@ -165,9 +163,7 @@ class BinaryLinearProblem:
 
         lower_violation = np.maximum(0.0, -values)
         upper_violation = np.maximum(0.0, values - 1.0)
-        bound_violation = float(
-            max(np.max(lower_violation), np.max(upper_violation))
-        )
+        bound_violation = float(max(np.max(lower_violation), np.max(upper_violation)))
         integrality_violation = float(np.max(np.abs(values - np.round(values))))
 
         violations: list[float] = []
@@ -220,9 +216,7 @@ class BinaryLinearProblem:
             name=str(payload["name"]),
             family=cast(ProblemFamily, str(payload["family"])),
             objective_sense=cast(ObjectiveSense, str(payload["objective_sense"])),
-            objective=tuple(
-                float(value) for value in cast(list[object], payload["objective"])
-            ),
+            objective=tuple(float(value) for value in cast(list[object], payload["objective"])),
             constraints=constraints,
             regime=str(payload.get("regime", "in_distribution")),
             metadata=dict(metadata),
@@ -233,8 +227,7 @@ def save_problem(problem: BinaryLinearProblem, path: str | Path) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        json.dumps(problem.to_dict(), indent=2, ensure_ascii=False, sort_keys=True)
-        + "\n",
+        json.dumps(problem.to_dict(), indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 

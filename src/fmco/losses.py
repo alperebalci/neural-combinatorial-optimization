@@ -23,8 +23,7 @@ def symmetric_info_nce(
     logits = first_normalized @ second_normalized.transpose(0, 1) / temperature
     targets = torch.arange(first.shape[0], device=first.device)
     return 0.5 * (
-        F.cross_entropy(logits, targets)
-        + F.cross_entropy(logits.transpose(0, 1), targets)
+        F.cross_entropy(logits, targets) + F.cross_entropy(logits.transpose(0, 1), targets)
     )
 
 

@@ -268,9 +268,7 @@ class FoundationCOModel(nn.Module):
             if variable_mask.shape != (graph.variable_count,):
                 raise ValueError("variable_mask has the wrong shape")
             variable_embeddings = variable_embeddings.clone()
-            variable_embeddings[variable_mask] = (
-                self.variable_mask_token + task_context.squeeze(0)
-            )
+            variable_embeddings[variable_mask] = self.variable_mask_token + task_context.squeeze(0)
         if constraint_mask is not None:
             if constraint_mask.shape != (graph.constraint_count,):
                 raise ValueError("constraint_mask has the wrong shape")
@@ -357,10 +355,7 @@ def save_checkpoint(
         "tasks": json.dumps(model.tasks),
         "extra": json.dumps(metadata or {}, sort_keys=True),
     }
-    tensors = {
-        key: value.detach().cpu().contiguous()
-        for key, value in model.state_dict().items()
-    }
+    tensors = {key: value.detach().cpu().contiguous() for key, value in model.state_dict().items()}
     save_file(tensors, str(output), metadata=header)
 
 
